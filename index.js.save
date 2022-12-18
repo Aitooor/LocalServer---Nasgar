@@ -1,0 +1,46 @@
+
+const express = require('express')
+const app = express()
+const mongoose = require('mongoose')
+const bcrypt = require('bcrypt')
+
+const userModel = mongoose.model('User', new mongoose.Schema({
+  username: String,
+  password: String,
+  uuid: String,
+}))
+
+mongoose.connect('mongodb://127.0.0.1:27017/web', {
+  user: 'extconnex9782',
+  pass: 'r2Pjj9Vz5tuPunr9CAy43jaPMYaNtSm5DnD492Cq'
+})
+
+// mongoose.connect('mongodb://127.0.0.1:27017/web')
+
+app.use(express.json())
+
+app.post('/', async (req, res) => {
+  if (!req.body || !req.body.username || !req.body.password || !req.body.uuid) return res.json({ error: 'provide valid arguments' })
+
+  const pass = req.body.password
+
+  const hash = await bcrypt.hash(pass, 10);
+
+  let userInfo = await userModel.findOne({ uuid: req.body.uuid })
+  if (!userInfo) {
+    userInfo = await userModel.create({
+      username: req.body.username,
+      password: hash,
+      uuid: req.body.uuid
+    })
+  } else {
+    userInfo.username = req.body.username
+    userInfo.password = hash
+    userInfo.uuid = req.body.uuid
+    await userInfo.save()
+  }
+  req.body.success = true
+  return res.json(userInfo)
+})
+
+app.listen(3080)
