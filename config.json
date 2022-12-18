@@ -1,0 +1,4 @@
+{
+  "mongodb": "mongodb://extconnex9782:r2Pjj9Vz5tuPunr9CAy43jaPMYaNtSm5DnD492Cq@51.222.254.76/Web?authSource=admin",
+  "redis": "redis://143.244.158.24:6379"
+}
