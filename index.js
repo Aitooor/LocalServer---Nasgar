@@ -5,7 +5,8 @@ const bcrypt = require('bcrypt')
 const config = require('./config.json')
 const redis = require('redis')
 const redisClient = redis.createClient({
-  url: config.redis
+  url: config.redis,
+  password: config.redisPass
 })
 
 const userModel = mongoose.model('User', new mongoose.Schema({
@@ -26,7 +27,7 @@ const orderModel = mongoose.model('Order', new mongoose.Schema({
 
 
 mongoose.connect(config.mongodb)
-redisClient.connect(config.mongodb)
+redisClient.connect()
 
 app.use(express.json())
 
@@ -68,6 +69,7 @@ setInterval(async () => {
     order.products.forEach(product => {
       if (!serversSet.has(product[lang].serverName)) serversSet.set(product[lang].serverName, [])
       const newVal = serversSet.get(product[lang].serverName)
+      product[lang].player = user.username
       newVal.push(product[lang])
       serversSet.set(product[lang].serverName, newVal)
     });
