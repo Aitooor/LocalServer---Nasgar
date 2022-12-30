@@ -39,20 +39,22 @@ app.post('/', async (req, res) => {
   const hash = await bcrypt.hash(pass, 10);
 
   let userInfo = await userModel.findOne({ uuid: req.body.uuid })
+
   if (!userInfo) {
     userInfo = await userModel.create({
       username: req.body.username,
       password: hash,
       uuid: req.body.uuid
     })
+    req.body.message = "User created successfully"
   } else {
-    userInfo.username = req.body.username
     userInfo.password = hash
-    userInfo.uuid = req.body.uuid
+    req.body.message = "Password changed"
     await userInfo.save()
   }
   req.body.success = true
-  return res.json(userInfo)
+  console.log(req.body)
+  return res.json(req.body)
 })
 
 setInterval(async () => {
