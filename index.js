@@ -51,12 +51,8 @@ app.post('/', async (req, res) => {
     req.body.message = "User created successfully"
   } else {
     userInfo.password = hash
-<<<<<<< HEAD
     userInfo.uuid = req.body.uuid
     userInfo.admin = req.body.admin
-=======
-    req.body.message = "Password changed"
->>>>>>> 7d19aebb0735ebf555f134b6ec39b04be5ccbc17
     await userInfo.save()
   }
   req.body.success = true
