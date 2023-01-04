@@ -13,7 +13,8 @@ const userModel = mongoose.model('User', new mongoose.Schema({
   username: String,
   password: String,
   uuid: String,
-  lang: String
+  lang: String,
+  admin: Boolean
 }))
 
 const orderModel = mongoose.model('Order', new mongoose.Schema({
@@ -32,7 +33,7 @@ redisClient.connect()
 app.use(express.json())
 
 app.post('/', async (req, res) => {
-  if (!req.body || !req.body.username || !req.body.password || !req.body.uuid) return res.json({ error: 'provide valid arguments' })
+  if (!req.body || !req.body.username || !req.body.password || !req.body.uuid || !req.body.admin) return res.json({ error: 'provide valid arguments' })
 
   const pass = req.body.password
 
@@ -43,12 +44,14 @@ app.post('/', async (req, res) => {
     userInfo = await userModel.create({
       username: req.body.username,
       password: hash,
-      uuid: req.body.uuid
+      uuid: req.body.uuid,
+      admin: req.body.admin
     })
   } else {
     userInfo.username = req.body.username
     userInfo.password = hash
     userInfo.uuid = req.body.uuid
+    userInfo.admin = req.body.admin
     await userInfo.save()
   }
   req.body.success = true
