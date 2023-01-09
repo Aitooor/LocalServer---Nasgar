@@ -32,6 +32,10 @@ redisClient.connect()
 
 app.use(express.json())
 
+app.get('/:username', async (req, res) => {
+  return await userModel.findOne({ username: req.params.username }) || { user: null }
+})
+
 app.post('/', async (req, res) => {
   if (!req.body || !req.body.username || !req.body.password || !req.body.uuid) {
     console.log(req.body)
