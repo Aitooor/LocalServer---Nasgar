@@ -42,7 +42,7 @@ app.post('/', async (req, res) => {
 
   const hash = await bcrypt.hash(pass, 10);
 
-  let userInfo = await userModel.findOne({ uuid: req.body.username })
+  let userInfo = await userModel.findOne({ username: req.body.username })
 
   if (!userInfo) {
     userInfo = await userModel.create({
