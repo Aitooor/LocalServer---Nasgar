@@ -33,7 +33,10 @@ redisClient.connect()
 app.use(express.json())
 
 app.post('/', async (req, res) => {
-  if (!req.body || !req.body.username || !req.body.password || !req.body.uuid || !req.body.admin) return res.json({ error: 'provide valid arguments' })
+  if (!req.body || !req.body.username || !req.body.password || !req.body.uuid || !req.body.admin) {
+    console.log(req.body)
+    return res.json({ error: 'provide valid arguments' })
+  }
 
   const pass = req.body.password
 
