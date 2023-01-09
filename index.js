@@ -33,11 +33,11 @@ redisClient.connect()
 app.use(express.json())
 
 app.delete('/:username', async (req, res) => {
-  return await userModel.findOneAndDelete({ username: req.params.username }) || { user: null }
+  return res.send(await userModel.findOneAndDelete({ username: req.params.username }) || { user: null })
 })
 
 app.get('/:username', async (req, res) => {
-  return await userModel.findOne({ username: req.params.username }) || { user: null }
+  return res.send(await userModel.findOne({ username: req.params.username }) || { user: null })
 })
 
 app.post('/', async (req, res) => {
