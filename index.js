@@ -33,7 +33,10 @@ redisClient.connect()
 app.use(express.json())
 
 app.post('/', async (req, res) => {
-  if (!req.body || !req.body.username || !req.body.password || !req.body.uuid || !req.body.admin) return res.json({ error: 'provide valid arguments' })
+  if (!req.body || !req.body.username || !req.body.password || !req.body.uuid) {
+    console.log(req.body)
+    return res.json({ error: 'provide valid arguments' })
+  }
 
   const pass = req.body.password
 
@@ -46,13 +49,13 @@ app.post('/', async (req, res) => {
       username: req.body.username,
       password: hash,
       uuid: req.body.uuid,
-      admin: req.body.admin
+      admin: Boolean(req.body.isAdmin)
     })
     req.body.message = "User created successfully"
   } else {
     userInfo.password = hash
     userInfo.uuid = req.body.uuid
-    userInfo.admin = req.body.admin
+    userInfo.admin = Boolean(req.body.isAdmin)
     await userInfo.save()
   }
   req.body.success = true
