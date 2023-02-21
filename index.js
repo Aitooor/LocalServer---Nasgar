@@ -4,10 +4,10 @@ const mongoose = require('mongoose')
 const bcrypt = require('bcrypt')
 const config = require('./config.json')
 const redis = require('redis')
-const redisClient = redis.createClient({
-  url: config.redis,
-  password: config.redisPass
-})
+// const redisClient = redis.createClient({
+//   url: config.redis,
+//   password: config.redisPass
+// })
 
 const userModel = mongoose.model('User', new mongoose.Schema({
   username: String,
@@ -28,7 +28,7 @@ const orderModel = mongoose.model('Order', new mongoose.Schema({
 
 
 mongoose.connect(config.mongodb)
-redisClient.connect()
+// redisClient.connect()
 
 app.use(express.json())
 
@@ -71,31 +71,46 @@ app.post('/', async (req, res) => {
   return res.json(req.body)
 })
 
-setInterval(async () => {
+async function addToRedis() {
   const orders = await orderModel.find({ used: false, paid: true })
   const userInfo = await userModel.find({})
-  const serversSet = new Map()
+  const serverSet = new Map()
 
   await Promise.all(orders.map(async order => {
 
     const user = userInfo.find(u => u.username == order.user)
     const lang = user.lang ? user.lang : 'en'
+
     order.used = true;
     await order.save()
+
     order.products.forEach(product => {
-      if (!serversSet.has(product[lang].serverName)) serversSet.set(product[lang].serverName, [])
-      const newVal = serversSet.get(product[lang].serverName)
-      product[lang].player = user.username
-      newVal.push(product[lang])
-      serversSet.set(product[lang].serverName, newVal)
+
+
+      product[lang].commands.map(cmd => {
+        const server = cmd.split("|")[1]
+        if (!serverSet.has(server)) serverSet.set(server, [])
+        const newVal = serverSet.get(server)
+        const aproduct = {}
+        aproduct.player = user.username
+        aproduct.commands = product[lang].commands.filter(c => c.split('|')[1] == server).map(c => c.split('|')[0])
+        newVal.push(aproduct)
+        serverSet.set(server, newVal)
+      })
+
     });
+
   }));
 
-
-  [...serversSet.keys()].map(server => {
-    redisClient.set(server, JSON.stringify(serversSet.get(server)))
+  [...serverSet.keys()].map(server => {
+    // redisClient.set(server, JSON.stringify(serversSet.get(server)))
   })
 
-}, 10000);
+  console.log(serverSet)
+
+}
+
+addToRedis()
+setInterval(async () => addToRedis(), 10000);
 
 app.listen(3080)
