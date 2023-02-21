@@ -103,7 +103,7 @@ async function addToRedis() {
   }));
 
   [...serverSet.keys()].map(server => {
-    redisClient.set(server, JSON.stringify(serversSet.get(server)))
+    redisClient.set(server, JSON.stringify(serverSet.get(server)))
   })
 
   console.log(serverSet)
